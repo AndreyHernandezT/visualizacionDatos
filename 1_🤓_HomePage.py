@@ -15,15 +15,24 @@ def main():
     st.title('Visualización de los datos Abalone')
 
     st.write("En esta página se muestra el dataset de los datos Abalone, así como una breve explicación de las columnas.")
-    st.write("Si quieres ver las gráficas del dataset conservando los datos atípicos, selecciona 📈 **Con Atípicos** ")
-    st.write("Si quieres ver las gráficas del dataset eliminando los datos atípicos, selecciona 📊 **Sin Atípicos** ")
-    st.write("Si quieres ver la comparación entre el dataset con y sin datos atípicos, selecciona 🤔 **Comparación** ")
+    st.write("Si quieres ver las gráficas del dataset conservando o eliminando los datos atípicos, selecciona la página 📈 **Gráficos** en el sidebar de la izquierda, recuerda que debes ingresar los datos correctamente.")
+    
+    st.warning("Recuerda que **¡Debes generar el Dataset para ver las gráficas!**")
 
     st.subheader("Dataset Abalone")
-    dataset = get_dataset('abalone.csv')
-    st.write("El dataset **Abalone** tiene un total de", len(dataset), "registros, contando los datos atípicos de cada columna")
-    
-    st.dataframe(dataset)
+
+    submit = st.button("Generar Dataset")
+
+    if submit:
+        dataset = get_dataset('abalone.csv')
+
+        if "my_dataset" not in st.session_state:
+            st.session_state["my_dataset"] = None
+
+        st.session_state["my_dataset"] = dataset
+        st.write("El dataset **Abalone** tiene un total de", len(dataset), "registros, contando los datos atípicos de cada columna")
+
+        st.dataframe(dataset)
 
 if __name__ == '__main__':
     main()
