@@ -12,14 +12,14 @@ def get_dataset(data):
     return dataset
 
 def main():
-    st.title('Visualización de los datos Abalone')
+    st.title('🤓 Visualización de los datos Abalone')
 
-    st.write("En esta página se muestra el dataset de los datos Abalone, así como una breve explicación de las columnas.")
     st.write("Si quieres ver las gráficas del dataset conservando o eliminando los datos atípicos, selecciona la página 📈 **Gráficos** en el sidebar de la izquierda, recuerda que debes ingresar los datos correctamente.")
     
     st.warning("Recuerda que **¡Debes generar el Dataset para ver las gráficas!**", icon="⚠️")
 
     st.subheader("Dataset Abalone")
+    st.write("El dataset [Abalone](https://archive.ics.uci.edu/ml/datasets/Abalone) consisten en datos de ``4176`` abalones. Los datos consisten en mediciones del tipo (macho, hembra y cría), la medida más larga de la concha, el diámetro, la altura y varios pesos (entero, descascarillado, vísceras y concha). El resultado es el número de anillos. La edad del abalón es el número de anillos mas 1,5.")
 
     submit = st.button("Generar Dataset")
 
@@ -33,6 +33,8 @@ def main():
         st.write("El dataset **Abalone** tiene un total de", len(dataset), "registros, contando los datos atípicos de cada columna")
 
         st.dataframe(dataset)
+
+        
 
 if __name__ == '__main__':
     main()

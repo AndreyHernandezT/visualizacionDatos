@@ -112,7 +112,6 @@ def graph_dispersion(dataset, column_input, column_output, tittle_graph, positio
     position.write(pandas_static)
     getSimetryKurtosis(mean,median,mode,kurtosis, position)
 
-
 def graph_regression(dataframe, inputs_selection, column_to_compare, position):
     mean, median, mode, kurtosis = generateStatics(dataframe,column_to_compare)
     dict_statics = {'Media':mean,'Mediana':median,'Moda':mode, "Curtosis":kurtosis}
@@ -160,7 +159,7 @@ def graph_regression(dataframe, inputs_selection, column_to_compare, position):
 
 
 def main():
-    st.title("Gráficas")
+    st.title("📈 Gráficas")
 
     col1, col2 = st.columns(2)
 
