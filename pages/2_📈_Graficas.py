@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error
 import scipy.stats.stats as stats
 from statsmodels.graphics.gofplots import qqplot
 
@@ -67,7 +72,7 @@ def generate_graphics(dataset, column, graph, tittle_graph, position):
             'x': qqplot_data[0].get_xdata(),
             'y': qqplot_data[0].get_ydata(),
             'mode': 'markers',
-            'marker': {
+            'marker': { 
                 'color': '#19d3f3'
             }
         })
@@ -106,11 +111,32 @@ def graph_dispersion(dataset, column_input, column_output, tittle_graph, positio
 
 
 def graph_regression(dataframe, inputs_selection, column_to_compare, position):
-    fig = px.scatter(dataframe, x=inputs_selection[0], y=column_to_compare, trendline="ols", trendline_scope="overall", trendline_color_override="green")
-    position.plotly_chart(fig, use_container_width=True)
-    results = px.get_trendline_results(fig)
-    results = results.iloc[0]["px_fit_results"].summary()
-    position.write(results)
+
+
+    X = dataframe[inputs_selection[0]]
+    Y = dataframe[column_to_compare]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=0.8,)
+
+    model = LinearRegression()
+    #model.fit(np.array(X).reshape(-1, 1),Y)
+    model.fit(X = np.array(X_train).reshape(-1, 1), y = y_train)
+
+    #x_range = np.linspace(X.min(), X.max(), 100)
+    #y_range = model.predict(x_range.reshape(-1, 1))
+
+    predicciones = model.predict(X = np.array(X_test).reshape(-1,1))
+
+    fig = px.scatter(dataframe, x=inputs_selection[0], y=column_to_compare, opacity=0.65)
+    #fig.add_traces(go.Scatter(x=x_range, y=y_range, name='Regression Fit'))
+    fig.add_traces(go.Scatter(x=X_test, y=predicciones, name='Regression Fit'))
+    #predicciones = model.predict(X = np.array(X_test).reshape(-1,1))
+
+    #fig = px.scatter(dataframe, x=inputs_selection[0], y=column_to_compare, trendline="ols", trendline_scope="overall", trendline_color_override="green")
+    position.plotly_chart(fig)
+    # results = px.get_trendline_results(fig)
+    # results = results.iloc[0]["px_fit_results"].summary()
+    # position.write(results)
 
 
 
@@ -175,7 +201,8 @@ def main():
 
                     title_without  = "Gráfica "+graph+" SIN Atipicos"
                     generate_graphics(dataset_clean, column, graph, title_without, col2)
-                    st.write("Se eliminaron ", (len(dataset)-len(dataset_clean)), "registros. Actualmente hay",len(dataset_clean))
+                    #output = "Se eliminaron ", (len(dataset)-len(dataset_clean)),"registros. Actualmente hay", len(dataset_clean)
+                    st.write("Se eliminaron ", (len(dataset)-len(dataset_clean)),"registros. Actualmente hay", len(dataset_clean))
             else:
                 if output_column != None:
                     if input_column!=None : graph_regression(dataset, input_column, output_column, st)
