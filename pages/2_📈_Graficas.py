@@ -1,14 +1,18 @@
+##### Paquete Interfaz Grafica
 import streamlit as st
+#### Paquetes importacion y manejo datos
 import pandas as pd
+import numpy as np
+import scipy.stats.stats as stats
+#### Paquete graficas
 import plotly.express as px
 import plotly.graph_objs as go
-import numpy as np
+from statsmodels.graphics.gofplots import qqplot
+######  paquetes de analitica de datos
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
-import scipy.stats.stats as stats
-from statsmodels.graphics.gofplots import qqplot
 
 def remove_outlier(dataset_in, col_name, value_alpha):
     q1 = dataset_in[col_name].quantile(0.25)
@@ -26,7 +30,6 @@ def generateStatics(dataframe, column_name):
 
     kurtosis = stats.kurtosis(dataframe[column_name])
     return mean, median, mode, kurtosis
-
 
 def getSimetryKurtosis(mean, median, mode, kurtosis, position):
     simetry = ""
@@ -111,32 +114,48 @@ def graph_dispersion(dataset, column_input, column_output, tittle_graph, positio
 
 
 def graph_regression(dataframe, inputs_selection, column_to_compare, position):
-
-
-    X = dataframe[inputs_selection[0]]
-    Y = dataframe[column_to_compare]
-
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=0.8,)
-
+    mean, median, mode, kurtosis = generateStatics(dataframe,column_to_compare)
+    dict_statics = {'Media':mean,'Mediana':median,'Moda':mode, "Curtosis":kurtosis}
+    pandas_static = pd.DataFrame(dict_statics).head(1)
     model = LinearRegression()
-    #model.fit(np.array(X).reshape(-1, 1),Y)
-    model.fit(X = np.array(X_train).reshape(-1, 1), y = y_train)
+    fig = None
+    r2 = 0
+    rmse = 0
+    if (len(inputs_selection) == 1):
+        X = dataframe[inputs_selection[0]]
+        Y = dataframe[column_to_compare]
 
-    #x_range = np.linspace(X.min(), X.max(), 100)
-    #y_range = model.predict(x_range.reshape(-1, 1))
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=0.5)
 
-    predicciones = model.predict(X = np.array(X_test).reshape(-1,1))
+        model.fit(X = np.array(X_train).reshape(-1, 1), y = y_train)
+        y_predict = model.predict(X = np.array(X_test).reshape(-1,1))
 
-    fig = px.scatter(dataframe, x=inputs_selection[0], y=column_to_compare, opacity=0.65)
-    #fig.add_traces(go.Scatter(x=x_range, y=y_range, name='Regression Fit'))
-    fig.add_traces(go.Scatter(x=X_test, y=predicciones, name='Regression Fit'))
-    #predicciones = model.predict(X = np.array(X_test).reshape(-1,1))
+        fig = px.scatter(dataframe, x=inputs_selection[0], y=column_to_compare, opacity=0.50)
+        r2 = r2_score(y_true=y_test,y_pred=y_predict)
+        rmse = mean_squared_error(y_true=y_test, y_pred=y_predict)
 
-    #fig = px.scatter(dataframe, x=inputs_selection[0], y=column_to_compare, trendline="ols", trendline_scope="overall", trendline_color_override="green")
+    else:
+        X = dataframe[inputs_selection]
+        Y = dataframe[column_to_compare]
+
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=0.5)
+
+        model.fit(X = X_train, y = y_train)
+
+        y_predict = model.predict(X = np.array(X_test))
+        fig = px.scatter(dataframe, x=(inputs_selection), y=column_to_compare, opacity=0.50)
+        r2 = r2_score(y_true=y_test,y_pred=y_predict)
+        rmse = mean_squared_error(y_true=y_test, y_pred=y_predict)
+
+    fig.add_traces(go.Scatter(x=X_test, y=y_predict, name='Regression Fit'))
     position.plotly_chart(fig)
-    # results = px.get_trendline_results(fig)
-    # results = results.iloc[0]["px_fit_results"].summary()
-    # position.write(results)
+    position.write(pandas_static)
+    getSimetryKurtosis(mean,median,mode,kurtosis, position)
+    position.markdown("### Métricas de Regresión ")
+    dict_metrics = {'RMSE':rmse, 'R^2':r2}
+    #dict_statics = {'Media':mean,'Mediana':median,'Moda':mode, "Curtosis":kurtosis}
+    pandas_metrics = pd.DataFrame(dict_metrics,index=[0])
+    position.write(pandas_metrics)
 
 
 
@@ -207,7 +226,7 @@ def main():
                 if output_column != None:
                     if input_column!=None : graph_regression(dataset, input_column, output_column, st)
                     title_without  = "Gráfica "+graph
-                    graph_dispersion(dataset, column, output_column, graph, title_without, st)
+                    graph_dispersion(dataset, column, output_column, title_without, st)
                 else:
                     title_without  = "Gráfica "+graph+" CON Atipicos"
                     generate_graphics(dataset, column, graph, title_without, st)
