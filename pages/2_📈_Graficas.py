@@ -192,7 +192,7 @@ def main():
         alpha_selection = st.slider("Factor de alfa para los atípicos:", min_value=0.0, max_value=3.0, value=1.5)
 
     if st.button('Generar Gráfica'):
-        
+        try:
             dataset = st.session_state["my_dataset"]
             if flag:
                 col1, col2 = st.columns(2)
@@ -230,7 +230,8 @@ def main():
                 else:
                     title_without  = "Gráfica "+graph+" CON Atipicos"
                     generate_graphics(dataset, column, graph, title_without, st)
-        
+        except:
+            st.error("Primero debes ir a **HomePage** y generar el dataset 😒")
 
 if __name__ == '__main__':
     main()
