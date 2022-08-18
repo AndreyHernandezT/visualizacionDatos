@@ -17,7 +17,7 @@ def main():
     st.write("En esta página se muestra el dataset de los datos Abalone, así como una breve explicación de las columnas.")
     st.write("Si quieres ver las gráficas del dataset conservando o eliminando los datos atípicos, selecciona la página 📈 **Gráficos** en el sidebar de la izquierda, recuerda que debes ingresar los datos correctamente.")
     
-    st.warning("Recuerda que **¡Debes generar el Dataset para ver las gráficas!**")
+    st.warning("Recuerda que **¡Debes generar el Dataset para ver las gráficas!**", icon="⚠️")
 
     st.subheader("Dataset Abalone")
 
