@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 
 
 def get_dataset(data):
-    dataset = pd.read_csv(data)
+    dataset = pd.read_csv(data, encoding='utf_8')
 
     name_columns = ['sex','Length','Diameter','Height','Whole weight',
            'Shucked weight','Viscera weight','Shell weight','Rings']  #Columnas del dataset
